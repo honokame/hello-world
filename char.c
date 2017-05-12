@@ -1,3 +1,5 @@
+// char.c
+
 #include<stdio.h>
 #include<string.h> // 文字列を扱うために必要
 
