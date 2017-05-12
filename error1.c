@@ -1,4 +1,5 @@
-// エラー１ 文字列  
+// error1.c 文字列  
+
 #include<stdio.h>
 #include<string.h>
 
