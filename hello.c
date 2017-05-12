@@ -1,3 +1,5 @@
+// hello.c
+
 #include <stdio.h>//標準入出力関数が使える
 
 int main(int argc,char**argv)
