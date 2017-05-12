@@ -1,9 +1,0 @@
-int型:4バイト
-char型:1バイト
-long型:8バイト
-short型:2バイト
-_Bool型:1バイト
-float型:4バイト
-long long型:8バイト
-long double型:16バイト
-unsigned char型:1バイト
