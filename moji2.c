@@ -1,3 +1,5 @@
+// moji2.c
+
 #include<stdio.h>
 #include<string.h>
 
