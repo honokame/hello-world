@@ -34,10 +34,10 @@ void make_map(void)
 		    map[i][j] = KABE;
 		else{
 		    map[i][j] = '.';
-        map[a][b] = BONB; 
-        map[c][d] = BONB;
-        map[e][f] = BONB;
-        }
+                    map[a][b] = BONB; 
+                    map[c][d] = BONB;
+                    map[e][f] = BONB;
+                    }
     if(i == 1 && j == 0){  
 		printf("\x1b[30m");
 		printf("\x1b[31m");
