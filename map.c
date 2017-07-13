@@ -6,6 +6,7 @@
 #define GOAL 'G'
 #define PLAYER '@'
 #define BONB '!' 
+#define TREASURE '*'
 #define GRASS '.'
 
 char map[20][20];
@@ -32,11 +33,17 @@ void make_map(void)
 		    map [i][j] = GOAL;
 		else if(i == 0 || i == 19)
 		    map[i][j] = KABE;
+	        else if(i == 5 && j== 8)
+		    map[i][j] = BOMB;
+	        else if(i == 11 && j== 3)
+		    map[i][j] = BOMB;
+		else if(i == 17 && j== 10)
+		    map[i][j] = BOMB;
 		else{
 		    map[i][j] = '.';
-                    map[a][b] = BONB; 
-                    map[c][d] = BONB;
-                    map[e][f] = BONB;
+                    map[a][b] = TREASURE; 
+                    map[c][d] = TREASURE;
+                    map[e][f] = TREASURE;
                     }
     if(i == 1 && j == 0){  
 		printf("\x1b[30m");
