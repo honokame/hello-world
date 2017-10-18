@@ -1,27 +1,26 @@
-// fiehead.c
+// filehead.c
 
 #include<stdio.h>
-#include<stdlib.h>
-
-int main(int argc,char**argv)
-{
-  FILE *file;
+int main(int argc,char**argv){
+  int moji[11];
   int i;
+  FILE *fp;
 
-  if((file = fopen(argv[1],"r")) == NULL){
-    printf("ファイルが開けません\n");
-    exit(-1);
-  }
-
-  while(1){
-    i = fgetc(file);
-    printf("%d\n",i);
-    if(i == EOF){
-      break;
-    }
+  if((fp = fopen(argv[1],"r")) == NULL){
+    return -1;
   }
   
-  fclose(file);
-  return 0;
-}
+  for(i = 0;i < 10;i++){
+    if((moji[i] = fgetc(fp)) == EOF){
+      printf("ERROR!\n");
+      return -1;
+    }
+  }
 
+ for(i = 0;i < 10;i++){
+   printf("%c",(char)moji[i]);
+ }
+ printf("\n");
+ 
+ return 0;
+}
