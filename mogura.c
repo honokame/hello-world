@@ -13,8 +13,8 @@ void glutPostRedisplay(void);
 void Timer(int);
 void Keyboard(unsigned char,int,int);
 
-GLuint img[33];
-pngInfo info[33];
+GLuint img[34];
+pngInfo info[34];
 int board[6][10];  
 int rimit = 0;
 int hit = 0;
@@ -23,7 +23,7 @@ int main(int argc,char**argv){
   int x,y;
   int no = 0;
   int i = 0;
-  char fname[33];
+  char fname[34];
   
   srand((unsigned int)time(NULL));
   
@@ -56,7 +56,7 @@ int main(int argc,char**argv){
   glutCreateWindow("mogura\n");
   
   //画像の読み込み
-  for(i = 0;i < 33;i ++){
+  for(i = 0;i < 34;i ++){
     sprintf(fname,"%d.png",i);
     img[i] = pngBind(fname,PNG_NOMIPMAP,PNG_ALPHA,&info[i],GL_CLAMP,GL_NEAREST,GL_NEAREST);
   }
@@ -89,7 +89,7 @@ void Display(void){
   if(rimit == 1){ 
     for(y = 0;y < 6;y++){
       for(x = 0;x < 10;x++){
-        if(board[y][x] == 31 || board[y][x] == 32){
+        if(board[y][x] == 31 || board[y][x] == 32 || board[y][x] == 33){
           board[y][x] = 30;
         }
         PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
@@ -108,7 +108,7 @@ void Display(void){
   if(rimit == 2){ 
     for(y = 0;y < 6;y++){
       for(x = 0;x < 10;x++){
-        if(board[y][x] == 31){
+        if(board[y][x] == 31 || board[y][x] == 33){
           board[y][x] = 30;
         }
         PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
@@ -123,6 +123,27 @@ void Display(void){
     m_y[2] = rand()% 3 + 2;
     m_x[2] = rand()% 10;
     board[m_y[2]][m_x[2]] = 32;
+    rimit = 0;
+  }
+  //熊出現
+  if(rimit == 3){ 
+    for(y = 0;y < 6;y++){
+      for(x = 0;x < 10;x++){
+        if(board[y][x] == 31 || board[y][x] == 33){
+          board[y][x] = 30;
+        }
+        PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
+      }
+    }
+    glFlush();
+    for(i = 0;i < 2;i++){
+      m_y[i] = rand()% 3 + 2;
+      m_x[i] = rand()% 10;
+      board[m_y[i]][m_x[i]] = 31;
+    }
+    m_y[2] = rand()% 3 + 2;
+    m_x[2] = rand()% 10;
+    board[m_y[2]][m_x[2]] = 33;
     rimit = 0;
   }
 
@@ -160,54 +181,65 @@ void PutSprite(int no,int x,int y,pngInfo *info){
 
 void Mouse(int button,int ud,int old_x,int old_y){
   int x,y;
-  
+
   if(button == GLUT_LEFT_BUTTON){
     if(ud == GLUT_DOWN){
       x = old_x / 64;
       y = old_y / 64;
-      
+
       //普通のモグラが押された時
       if(board[y][x] == 31){
         board[y][x] = 30;
         hit++;
       }
-      
+
       //金のモグラが押された時
       else if(board[y][x] == 32){
         board[y][x] = 30;
-        hit += 3;
+        hit += 3; 
+      } 
+
+      //熊が押された時
+      else if(board[y][x] == 33){
+        board[y][x] = 30;
+        hit -= 5; 
       }
+      Display();
     }
-    Display();
   }
 }
 
-void Timer(int t){
-  rimit = 1;
-  timeout++;
-  
-  //普通のモグラ出現
-  Display();
-  glutTimerFunc(1000,Timer,0);
-  
-  //金のモグラ出現
-  if(timeout == 5 || timeout == 10 || timeout == 15 || timeout == 20 || timeout == 25){
-    rimit = 2;
-    Display();
-  }
-  
-  //ゲーム時間
-  if(timeout == 30){
-    printf("あなたの点数は７５点中 %d 点です\n",hit);
-    exit(0);
-  }
-}
+  void Timer(int t){
+    rimit = 1;
+    timeout++;
 
-void Keyboard(unsigned char key,int x,int y){
-  
-  //途中終了
-  if(key == 'q'){
-    printf("あなたの点数は７５点中 %d 点です\n",hit);
-    exit(0);
+    //普通のモグラ出現
+    Display();
+    glutTimerFunc(1000,Timer,0);
+
+    //金のモグラ出現
+    if(timeout == 5 || timeout == 10 || timeout == 15 || timeout == 20 || timeout == 25){
+      rimit = 2;
+      Display();
+    }
+    //熊出現
+    if(timeout == 3 || timeout == 9 || timeout == 12 || timeout == 18 || timeout == 23 || timeout == 27){
+      rimit = 3;
+      Display();
+    }
+
+      //ゲーム時間
+      if(timeout == 30){
+        printf("あなたの点数は７５点中 %d 点です\n",hit);
+        exit(0);
+      }
   }
-}
+
+  void Keyboard(unsigned char key,int x,int y){
+
+    //途中終了
+    if(key == 'q'){
+      printf("あなたの点数は７５点中 %d 点です\n",hit);
+      exit(0);
+    }
+  }
