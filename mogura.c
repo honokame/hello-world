@@ -1,3 +1,4 @@
+//mogura.c
 #include<GL/glut.h>
 #include<GL/glpng.h>
 #include<stdio.h>
@@ -9,34 +10,40 @@ void Reshape(int,int);
 void PutSprite(int,int,int,pngInfo *);
 void Mouse(int,int,int,int);
 void glutPostRedisplay(void);
+void Timer(int);
+void Keyboard(unsigned char,int,int);
 
 GLuint img[33];
 pngInfo info[33];
 int board[6][10];  
+int rimit = 0;
+int hit = 0;
+int timeout = 0;
 int main(int argc,char**argv){
   int x,y;
   int no = 0;
   int i = 0;
   char fname[33];
-  /*srand((unsigned int)time(NULL));
-  for(y = 0;y < 7;y++){
-    for(x = 0;x < 12;x++){
-      no = rand() % 2;
-      board[y][x] = no;
-    }
-  }*/
+  
+  srand((unsigned int)time(NULL));
+  
+  //初期状態
+  // 背景
   for(y = 0;y < 2;y++){
     for(x = 0;x < 10;x++){
       board[y][x] = no;
       no++;
     }
   }
-  no = 30;
+  
+  //穴
   for(y = 2;y < 5;y++){
     for(x = 0;x < 10;x++){
-      board[y][x] = no;
+      board[y][x] = 30;
     }
   }
+  
+  //草
   no = 20;
   for(y = 5;y < 6;y++){
     for(x = 0;x < 10;x++){
@@ -44,33 +51,24 @@ int main(int argc,char**argv){
       no++;
     }
   }
-
-
-
   glutInit(&argc,argv);
   glutInitWindowSize(640,384);
-  glutCreateWindow("seiseki\n");
-  glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA);
-  glClearColor(0.0,0.0,1.0,1.0);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-
-  //PNG画像の読み込み
+  glutCreateWindow("mogura\n");
+  
+  //画像の読み込み
   for(i = 0;i < 33;i ++){
     sprintf(fname,"%d.png",i);
     img[i] = pngBind(fname,PNG_NOMIPMAP,PNG_ALPHA,&info[i],GL_CLAMP,GL_NEAREST,GL_NEAREST);
   }
-  //コールバック関数の登録
   glutDisplayFunc(Display);
   glutReshapeFunc(Reshape);
   glutMouseFunc(Mouse); 
+  glutTimerFunc(1000,Timer,0);
+  glutKeyboardFunc(Keyboard);
   glutMainLoop();
-
   return 0;
 }
 
-//ウィンドウのサイズが変更したときに座標系を再設定する関数
 void Reshape(int w,int h){
   glViewport(0,0,w,h);
   glMatrixMode(GL_MODELVIEW);
@@ -80,11 +78,55 @@ void Reshape(int w,int h){
   glTranslated(0,-h,0);
 }
 
-//ウィンドウの表示内容を更新する
 void Display(void){
   int y,x;
+  int m_x[3],m_y[3];
+  int i;
+  
+  srand((unsigned int)time(NULL));
+  
+  //普通のモグラ出現
+  if(rimit == 1){ 
+    for(y = 0;y < 6;y++){
+      for(x = 0;x < 10;x++){
+        if(board[y][x] == 31 || board[y][x] == 32){
+          board[y][x] = 30;
+        }
+        PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
+      }
+    }
+    glFlush();
+    for(i = 0;i < 2;i++){
+      m_y[i] = rand()% 3 + 2;
+      m_x[i] = rand()% 10;
+      board[m_y[i]][m_x[i]] = 31;
+    }
+    rimit = 0;
+  }
+  
+  //金のモグラ出現
+  if(rimit == 2){ 
+    for(y = 0;y < 6;y++){
+      for(x = 0;x < 10;x++){
+        if(board[y][x] == 31){
+          board[y][x] = 30;
+        }
+        PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
+      }
+    }
+    glFlush();
+    for(i = 0;i < 2;i++){
+      m_y[i] = rand()% 3 + 2;
+      m_x[i] = rand()% 10;
+      board[m_y[i]][m_x[i]] = 31;
+    }
+    m_y[2] = rand()% 3 + 2;
+    m_x[2] = rand()% 10;
+    board[m_y[2]][m_x[2]] = 32;
+    rimit = 0;
+  }
 
-  glClear(GL_COLOR_BUFFER_BIT);
+  //モグラの出現、モグラが押された時の画面更新
   for(y = 0;y < 6;y++){
     for(x = 0;x < 10;x++){
       PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
@@ -93,7 +135,6 @@ void Display(void){
   glFlush();
 }
 
-//PNG画像を座標に表示する
 void PutSprite(int no,int x,int y,pngInfo *info){
   int w,h;
 
@@ -117,32 +158,56 @@ void PutSprite(int no,int x,int y,pngInfo *info){
   glPopMatrix();
 }
 
-//マウスがクリックされたとき
 void Mouse(int button,int ud,int old_x,int old_y){
   int x,y;
-  int i;
+  
   if(button == GLUT_LEFT_BUTTON){
     if(ud == GLUT_DOWN){
       x = old_x / 64;
       y = old_y / 64;
-      for(i = -1;i < 2;i++){
-        if(y+i > -1 && y+i < 10){
-          board[y+i][x] = !(board[y+i][x]);
-        }
-        continue;
+      
+      //普通のモグラが押された時
+      if(board[y][x] == 31){
+        board[y][x] = 30;
+        hit++;
       }
-      for(i = -1;i < 2;i++){
-        if(x+i > -1 && x+i < 10 && !(i == 0)){
-          board[y][x+i] = !(board[y][x+i]);
-        }
-        continue;
+      
+      //金のモグラが押された時
+      else if(board[y][x] == 32){
+        board[y][x] = 30;
+        hit += 3;
       }
-      glutPostRedisplay();
-
     }
+    Display();
   }
 }
 
+void Timer(int t){
+  rimit = 1;
+  timeout++;
+  
+  //普通のモグラ出現
+  Display();
+  glutTimerFunc(1000,Timer,0);
+  
+  //金のモグラ出現
+  if(timeout == 5 || timeout == 10 || timeout == 15 || timeout == 20 || timeout == 25){
+    rimit = 2;
+    Display();
+  }
+  
+  //ゲーム時間
+  if(timeout == 30){
+    printf("あなたの点数は７５点中 %d 点です\n",hit);
+    exit(0);
+  }
+}
 
-
-
+void Keyboard(unsigned char key,int x,int y){
+  
+  //途中終了
+  if(key == 'q'){
+    printf("あなたの点数は７５点中 %d 点です\n",hit);
+    exit(0);
+  }
+}
