@@ -191,18 +191,21 @@ void Mouse(int button,int ud,int old_x,int old_y){
       if(board[y][x] == 31){
         board[y][x] = 30;
         hit++;
+        printf("\a");
       }
 
       //金のモグラが押された時
       else if(board[y][x] == 32){
         board[y][x] = 30;
         hit += 3; 
+        printf("\a");
       } 
 
       //熊が押された時
       else if(board[y][x] == 33){
         board[y][x] = 30;
         hit -= 5; 
+        printf("\a");
       }
       Display();
     }
