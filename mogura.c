@@ -19,8 +19,7 @@ int board[6][10];
 int rimit = 0;
 int hit = 0;
 int timeout = 0;
-int main(int argc,char**argv){
-  int x,y;
+int main(int argc,char**argv){ int x,y;
   int no = 0;
   int i = 0;
   char fname[34];
@@ -54,7 +53,9 @@ int main(int argc,char**argv){
   glutInit(&argc,argv);
   glutInitWindowSize(640,384);
   glutCreateWindow("mogura\n");
-  
+  glutPositionWindow(0,0);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+  glClearColor(0.0,0.0,1.0,1.0);
   //画像の読み込み
   for(i = 0;i < 34;i ++){
     sprintf(fname,"%d.png",i);
@@ -95,7 +96,7 @@ void Display(void){
         PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
       }
     }
-    glFlush();
+    glutSwapBuffers();
     for(i = 0;i < 2;i++){
       m_y[i] = rand()% 3 + 2;
       m_x[i] = rand()% 10;
@@ -113,8 +114,8 @@ void Display(void){
         }
         PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
       }
-    }
-    glFlush();
+    }  
+    glutSwapBuffers();
     for(i = 0;i < 2;i++){
       m_y[i] = rand()% 3 + 2;
       m_x[i] = rand()% 10;
@@ -134,8 +135,8 @@ void Display(void){
         }
         PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
       }
-    }
-    glFlush();
+    } 
+    glutSwapBuffers();
     for(i = 0;i < 2;i++){
       m_y[i] = rand()% 3 + 2;
       m_x[i] = rand()% 10;
@@ -152,8 +153,8 @@ void Display(void){
     for(x = 0;x < 10;x++){
       PutSprite(img[board[y][x]],64 * x,64 * y,&info[board[y][x]]);
     }
-  }
-  glFlush();
+  }  
+  glutSwapBuffers();
 }
 
 void PutSprite(int no,int x,int y,pngInfo *info){
@@ -212,37 +213,37 @@ void Mouse(int button,int ud,int old_x,int old_y){
   }
 }
 
-  void Timer(int t){
-    rimit = 1;
-    timeout++;
+void Timer(int t){
+  rimit = 1;
+  timeout++;
 
-    //普通のモグラ出現
+  //普通のモグラ出現
+  Display();
+  glutTimerFunc(1000,Timer,0);
+
+  //金のモグラ出現
+  if(timeout == 5 || timeout == 10 || timeout == 15 || timeout == 20 || timeout == 25){
+    rimit = 2;
     Display();
-    glutTimerFunc(1000,Timer,0);
-
-    //金のモグラ出現
-    if(timeout == 5 || timeout == 10 || timeout == 15 || timeout == 20 || timeout == 25){
-      rimit = 2;
-      Display();
-    }
-    //熊出現
-    if(timeout == 3 || timeout == 9 || timeout == 12 || timeout == 18 || timeout == 23 || timeout == 27){
-      rimit = 3;
-      Display();
-    }
-
-      //ゲーム時間
-      if(timeout == 30){
-        printf("あなたの点数は７５点中 %d 点です\n",hit);
-        exit(0);
-      }
+  }
+  //熊出現
+  if(timeout == 3 || timeout == 7 || timeout == 12 || timeout == 17 || timeout == 22 || timeout == 27){
+    rimit = 3;
+    Display();
   }
 
-  void Keyboard(unsigned char key,int x,int y){
-
-    //途中終了
-    if(key == 'q'){
-      printf("あなたの点数は７５点中 %d 点です\n",hit);
-      exit(0);
-    }
+  //ゲーム時間
+  if(timeout == 30){
+    printf("あなたの点数は７５点中 %d 点です\n",hit);
+    exit(0);
   }
+}
+
+void Keyboard(unsigned char key,int x,int y){
+
+  //途中終了
+  if(key == 'q'){
+    printf("あなたの点数は７５点中 %d 点です\n",hit);
+    exit(0);
+  }
+}
